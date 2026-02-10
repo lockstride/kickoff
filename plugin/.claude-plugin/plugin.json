@@ -1,0 +1,13 @@
+{
+  "name": "lockstride-kickoff",
+  "version": "1.0.0",
+  "description": "AI-guided workflow for startup ideation and development - from concept brainstorming to product handoff",
+  "author": {
+    "name": "Lockstride",
+    "email": "hello@lockstride.ai",
+    "url": "https://lockstride.ai"
+  },
+  "homepage": "https://github.com/lockstride/kickoff",
+  "repository": "https://github.com/lockstride/kickoff",
+  "license": "MIT"
+}

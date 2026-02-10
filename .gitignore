@@ -1,0 +1,29 @@
+# Local settings
+.claude/*.local.md
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+.cursor/
+
+# Spec Story
+.specstory/
+
+# Node modules (if any scripts use Node)
+node_modules/
+
+# E2E test transcripts (contain API responses)
+tests/e2e/transcripts/*.json
+
+# Python cache (if any scripts use Python)
+__pycache__/
+*.pyc
