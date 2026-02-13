@@ -530,7 +530,8 @@ pnpm pre-commit
 
 **Key principles:**
 - Skills use gerund naming convention (e.g., `generating-documents`, `brainstorming-ideas`)
-- For methodology skills preloaded by agents, set `user-invocable: false` and `disable-model-invocation: true`
+- For orchestration skills invoked by commands/skills via the Skill tool, set `user-invocable: false` (do NOT set `disable-model-invocation: true` — this blocks Skill tool invocation)
+- For methodology skills preloaded by agents via `skills:` frontmatter, set `user-invocable: false` and `disable-model-invocation: true`
 - See existing skills like `skills/generating-documents/` for examples
 
 ### Adding New Commands

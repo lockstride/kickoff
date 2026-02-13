@@ -2,7 +2,6 @@
 name: generating-documents
 description: Generate startup documents. Intelligently routes based on document state - creates internal docs, exports external versions, or offers choices when documents exist.
 user-invocable: false
-disable-model-invocation: true
 allowed-tools: Read Write Bash Glob AskUserQuestion Task
 ---
 

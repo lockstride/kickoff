@@ -1,6 +1,6 @@
 {
   "name": "kickoff",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "AI-guided workflow for startup ideation and development",
   "type": "module",
   "scripts": {

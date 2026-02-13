@@ -2,7 +2,6 @@
 name: gathering-input
 description: Interactive input gathering for documents requiring subjective decisions. Routes to topic-specific conversations, captures structured output.
 user-invocable: false
-disable-model-invocation: true
 allowed-tools: Read Write AskUserQuestion
 ---
 

@@ -2,7 +2,6 @@
 name: challenging-assumptions
 description: Use for SKEPTIC MODE stress-testing of startup artifacts. Challenges assumptions with VC-style scrutiny, tracks satisfactory/unsatisfactory responses, and produces structured insights.
 user-invocable: false
-disable-model-invocation: true
 context: fork
 model: inherit
 allowed-tools: Read AskUserQuestion

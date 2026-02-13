@@ -37,16 +37,23 @@ The plugin follows a **Skills-First Architecture** where domain expertise and wo
 
 ### Skill Invocation Strategy
 
-This is a well-defined, encapsulated workflow. Skills are NOT auto-discovered by AI mid-conversation:
+This is a well-defined, encapsulated workflow. Skills are NOT auto-discovered by AI mid-conversation. Skills fall into two categories based on how they are invoked:
+
+**Orchestration skills** — invoked by commands/skills via the Skill tool. Hidden from user menu (`user-invocable: false`) but model-invocable (default `disable-model-invocation: false`):
 
 | Skill | Invocation Method | Frontmatter |
 |-------|-------------------|-------------|
-| `generating-documents` | User-invoked (main entry point) | `user-invocable: true` (default) |
-| `challenging-assumptions` | User-invoked at Scrutiny Checkpoint | `user-invocable: true` |
-| `naming-business` | User-invoked, runs interactively inline | `user-invocable: true` |
+| `generating-documents` | Invoked by `init`, `generate-docs` commands via Skill tool | `user-invocable: false` |
 | `gathering-input` | Invoked by `generating-documents` for business/brand/product briefs | `user-invocable: false` |
-| `researching-markets` | Invoked by `researcher` agent | `user-invocable: false`, `disable-model-invocation: true` |
-| `researching-repos` | Invoked by `researcher` agent | `user-invocable: false`, `disable-model-invocation: true` |
+| `naming-business` | Invoked by `generating-documents`, `name-startup` via Skill tool | `user-invocable: false` |
+| `challenging-assumptions` | Invoked by `generating-documents` at Scrutiny Checkpoint | `user-invocable: false` |
+
+**Methodology skills** — preloaded by agents via `skills:` frontmatter or read as files. Never invoked via the Skill tool (`disable-model-invocation: true`):
+
+| Skill | Invocation Method | Frontmatter |
+|-------|-------------------|-------------|
+| `researching-markets` | Preloaded by `researcher` agent | `user-invocable: false`, `disable-model-invocation: true` |
+| `researching-repos` | Read by `researcher` agent | `user-invocable: false`, `disable-model-invocation: true` |
 | `writing-content` | Preloaded by `business-writer` | `user-invocable: false`, `disable-model-invocation: true` |
 | `synthesizing-content` | Preloaded by `business-writer` | `user-invocable: false`, `disable-model-invocation: true` |
 

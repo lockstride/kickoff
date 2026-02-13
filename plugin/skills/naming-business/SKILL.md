@@ -2,7 +2,6 @@
 name: naming-business
 description: Use when user wants to name or rename their startup. Conducts interactive naming exercises or simple renames directly in the current context.
 user-invocable: false
-disable-model-invocation: true
 allowed-tools: Read Write AskUserQuestion Bash Grep WebSearch
 ---
 
