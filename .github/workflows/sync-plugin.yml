@@ -49,7 +49,7 @@ jobs:
           echo "=== Syncing Plugin Contents ==="
           echo "Source: plugin/"
           echo "Destination: dist-repo/"
-          rsync -av --delete --exclude='.git' --filter='protect /README.md' plugin/ dist-repo/
+          rsync -av --checksum --delete --exclude='.git' --filter='protect /README.md' plugin/ dist-repo/
           echo ""
 
       - name: Show sync diff
