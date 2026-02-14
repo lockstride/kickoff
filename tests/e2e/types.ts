@@ -154,3 +154,77 @@ export interface EvalResult {
   passRate: number;
   trialResults: Trial[];
 }
+
+// ============================================================================
+// Orchestration Types (Tool-Use Simulation)
+// ============================================================================
+
+/** A recorded tool invocation from an orchestration trial */
+export interface ToolInvocation {
+  name: string;
+  input: Record<string, unknown>;
+  id: string;
+  /** Sequence position across the trial (0-based) */
+  order: number;
+}
+
+/** An assertion to evaluate against collected tool invocations */
+export interface OrchestratorAssertion {
+  description: string;
+  check: (invocations: ToolInvocation[]) => boolean;
+}
+
+/** Result of a single assertion check */
+export interface AssertionResult {
+  description: string;
+  passed: boolean;
+}
+
+/** Result of a single orchestration trial */
+export interface OrchestratorTrialResult {
+  trialNumber: number;
+  toolInvocations: ToolInvocation[];
+  assertionResults: AssertionResult[];
+  passed: boolean;
+  durationMs: number;
+}
+
+/** Result of evaluating an orchestration task across all trials */
+export interface OrchestratorEvalResult {
+  task: string;
+  trials: number;
+  trialsRun: number;
+  passed: number;
+  passRate: number;
+  trialResults: OrchestratorTrialResult[];
+}
+
+/** Plugin file to load into orchestration system prompt */
+export interface OrchestratorContextFile {
+  /** Path relative to plugin root */
+  relativePath: string;
+  /** Section header in system prompt */
+  header: string;
+}
+
+/** Mock tool handler: receives tool input, returns simulated result string */
+export type MockToolHandler = (input: Record<string, unknown>) => string;
+
+/** Orchestration task definition */
+export interface OrchestratorTask {
+  name: string;
+  description: string;
+  trials: number;
+  /** Plugin files to inject into system prompt context */
+  contextFiles: OrchestratorContextFile[];
+  /** Additional system prompt instructions appended after context */
+  systemInstructions: string;
+  /** User message to send */
+  userMessage: string;
+  /** Override default mock handlers for specific tools */
+  mockOverrides?: Record<string, MockToolHandler>;
+  /** Assertions to evaluate against tool invocations */
+  assertions: OrchestratorAssertion[];
+  /** Minimum fraction of trials that must pass (default: uses global MIN_PASS_RATE) */
+  min_pass_rate?: number;
+}

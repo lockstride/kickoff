@@ -73,9 +73,13 @@ The file format should match the structure defined in the topic file.
 
 ### Step 6: Signal Completion
 
-Return to caller (generating-documents skill) which will:
-- Spawn business-writer subagent with input_source parameter (subagent receives fresh context automatically)
-- Generate the document using the captured input
+After writing the session file, confirm it was written and return control:
+
+```
+Continuing to document generation...
+```
+
+The generating-documents skill will then proceed to spawn the lockstride-kickoff:business-writer subagent with the session file as input. Do NOT spawn the agent yourself — return control to the caller.
 
 ---
 

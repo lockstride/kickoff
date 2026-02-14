@@ -115,7 +115,7 @@ market-analysis
 **Case 1: No internal document exists**
 - Check dependencies are met
 - If missing dependencies: "You need {missing} first. Generate it now?"
-- If dependencies met: Spawn `business-writer` agent to generate
+- If dependencies met: Spawn `lockstride-kickoff:business-writer` agent to generate
 
 **Case 2: Internal exists, no external**
 
@@ -153,7 +153,7 @@ Then:
 - Skip document existence checks (trust provided `document_state`)
 - Skip dependency verification (trust `dependencies_met`)
 - Proceed directly to the appropriate action based on `document_state`:
-  - `"new"` → Spawn business-writer to generate
+  - `"new"` → Spawn lockstride-kickoff:business-writer to generate
   - `"draft_exists"` → Enter Document Review Loop
   - `"master_exists"` → Prompt for regeneration
 

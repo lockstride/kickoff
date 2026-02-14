@@ -60,10 +60,10 @@ If template frontmatter has `research_required: true`:
    I'm gathering information from the web to create an accurate document. This typically takes a little while. Feel free to step away while I work. 
    ```
 3. FOR EACH skill in `research_skills`:
-   - Spawn researcher agent:
+   - Spawn lockstride-kickoff:researcher agent:
      ```
      Task(
-       subagent_type="researcher",
+       subagent_type="lockstride-kickoff:researcher",
        prompt="Research {inputs} using {skill} methodology.
        
        Research Skill: {skill}
@@ -82,18 +82,22 @@ If template frontmatter has `research_required: true`:
 1. **Invoke gathering-input skill** via Skill tool (inline, in current context) with document_type parameter
 2. Skill loads appropriate topic file and conducts conversation with user interactively
 3. Skill writes `.{document_type}-input.md` to internal path
-4. **Message user** (simple, clear language):
+
+**CONTINUATION**: After gathering-input returns, immediately proceed to Step 4. Do NOT stop, wait for user input, or end the turn. The gathering-input skill's job is done — yours is not.
+
+4. Verify `{internalPath}/.{document_type}-input.md` exists (read it to confirm)
+5. **Message user** (simple, clear language):
    ```
    Writing {document_type}...
    
    I'm creating your document from the information you provided.
    This typically takes several minutes.
    ```
-5. **Spawn business-writer subagent** with input_source parameter (subagent receives fresh context automatically):
+6. **Spawn lockstride-kickoff:business-writer subagent** with input_source parameter (subagent receives fresh context automatically):
 
 ```
 Task(
-  subagent_type="business-writer",
+  subagent_type="lockstride-kickoff:business-writer",
   prompt="Generate {document_type} for {startup_name} from the gathered input.
   
   Internal path: {internalPath}
@@ -115,9 +119,9 @@ Task(
      I'm gathering information from the web to create an accurate document. This typically takes a little while. Feel free to step away while I work. 
      ```
    - FOR EACH skill in `research_skills`:
-     - Spawn researcher agent to execute research
+     - Spawn lockstride-kickoff:researcher agent to execute research
      - Collect structured findings
-   - Proceed to spawn business-writer with research findings
+   - Proceed to spawn lockstride-kickoff:business-writer with research findings
 
 2. Read all required/available upstream documents (listed in template frontmatter `dependencies`)
 
@@ -128,11 +132,11 @@ Task(
    I'm creating your document based on your research and upstream documents. This typically takes several minutes.
    ```
 
-4. **Spawn business-writer subagent** with all context (subagent receives fresh context automatically):
+4. **Spawn lockstride-kickoff:business-writer subagent** with all context (subagent receives fresh context automatically):
 
 ```
 Task(
-  subagent_type="business-writer",
+  subagent_type="lockstride-kickoff:business-writer",
   prompt="Create {document_type} for {startup_name} using the methodology specified in the template.
   
   Internal path: {internalPath}
@@ -389,7 +393,7 @@ After SKEPTIC MODE exits with structured insights summary, present enhanced revi
 2. Create succinct summary of changes needed
 3. Present summary to user for approval using YES-NO-CONFIRMATION pattern
 4. If user approves:
-   - Spawn business-writer subagent with `skeptic_insights` parameter passing insights as context (not file)
+   - Spawn lockstride-kickoff:business-writer subagent with `skeptic_insights` parameter passing insights as context (not file)
    - Agent applies SKEPTIC Feedback Incorporation Mode (see `${CLAUDE_PLUGIN_ROOT}/agents/business-writer.md`)
    - Proceed to standard Document Review Loop (5 options)
 5. If user declines approval:
