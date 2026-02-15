@@ -2,7 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import type { GraderResult, ModelGraderDetails, UsageStats } from '../types';
 import { accumulateUsage } from '../utils';
 
-const client = new Anthropic();
+const client = new Anthropic({ maxRetries: 5 });
 
 const GRADER_MODEL = process.env.INTEGRATION_GRADER_MODEL ?? 'claude-haiku-4-5';
 

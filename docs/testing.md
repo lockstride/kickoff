@@ -106,8 +106,8 @@ pnpm test:integration edge-
 - **Pass criteria**: Configurable via `INTEGRATION_MIN_PASS_RATE` (default: 33% = 1 of 3 trials)
 - **Models**: Uses Haiku for generation and grading by default (configurable via `INTEGRATION_GENERATION_MODEL` / `INTEGRATION_GRADER_MODEL`)
 - **Timeouts**: 15 minutes per task maximum
-- **Execution**: Sequential to avoid API rate limits
-- **Cost**: Approximately $0.50-$2.00 per full test suite run (shown in test output)
+- **Execution**: Parallel across test files (auto-scaled to API rate limits; override with `INTEGRATION_MAX_CONCURRENCY`)
+- **Cost**: Can exceed $2 per full test suite run (shown in test output)
 
 ### Integration Test Output
 
@@ -318,6 +318,12 @@ INTEGRATION_GRADER_MODEL=claude-haiku-4-5       # Default: claude-haiku-4-5
 
 # Optional: Minimum pass rate for integration tests (fraction of trials that must pass)
 INTEGRATION_MIN_PASS_RATE=0.33                  # Default: 0.33 (1 of 3 trials)
+
+# Optional: Override parallel test file concurrency
+# Integration tests auto-detect optimal concurrency from API rate limit headers.
+# Set explicitly only if you need to override the auto-detected value.
+INTEGRATION_MAX_CONCURRENCY=8                   # Default: auto-detected from output TPM
+E2E_MAX_CONCURRENCY=2                           # Default: 2
 ```
 
 **Note:** The `.env` file is gitignored to prevent accidentally committing API keys.
@@ -348,6 +354,26 @@ INTEGRATION_MIN_PASS_RATE=0.33                  # Default: 0.33 (1 of 3 trials)
 - Review `tests/e2e/transcripts/*.json` (if written by test)
 - Check console output for SDK initialization errors
 - Verify the plugin directory structure is correct
+
+### Rate Limit Auto-Detection
+
+Integration tests automatically probe the Anthropic API at startup to detect your org's rate limits and calculate the optimal number of parallel workers. The probe makes a minimal API call (~1 output token) and reads the `anthropic-ratelimit-output-tokens-limit` response header.
+
+**How it works:**
+- Budget: ~10,000 output tokens per minute per concurrent worker
+- Build tier (10k output TPM) → 1 worker (sequential)
+- Scale tier (80k output TPM) → 8 workers
+- Higher tiers → up to 16 workers
+
+**When the probe is skipped:**
+- No `ANTHROPIC_API_KEY` set → falls back to 2 workers
+- `INTEGRATION_MAX_CONCURRENCY` env var set → uses that value directly
+- Network/API error → falls back to 2 workers
+
+**Console output example:**
+```
+⚡ Rate limits (claude-haiku-4-5): 80,000 output TPM → 8 worker(s)
+```
 
 ### Test Failures
 

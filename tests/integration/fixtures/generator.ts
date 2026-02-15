@@ -165,7 +165,7 @@ export async function regenerateStaleFixtures(): Promise<{
     };
   }
 
-  const client = new Anthropic();
+  const client = new Anthropic({ maxRetries: 5 });
   const failed: string[] = [];
   let regenerated = 0;
 

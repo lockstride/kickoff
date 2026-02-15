@@ -37,7 +37,7 @@ import { globalUsage } from './global-usage';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const client = new Anthropic();
+const client = new Anthropic({ maxRetries: 5 });
 
 export const ORCHESTRATION_MODEL = process.env.INTEGRATION_GENERATION_MODEL ?? 'claude-haiku-4-5';
 
@@ -191,7 +191,25 @@ export async function evaluateOrchestratorTask(
   for (let i = 1; i <= task.trials; i++) {
     console.log(`[${task.name}] Trial ${i.toString()} started...`);
 
-    const trial = await runOrchestratorTrial(task, i);
+    let trial: OrchestratorTrialResult;
+    try {
+      trial = await runOrchestratorTrial(task, i);
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      console.log(`[${task.name}] Trial ${i.toString()} ERROR: ${errorMsg}`);
+      trial = {
+        trialNumber: i,
+        toolInvocations: [],
+        assertionResults: task.assertions.map((a) => ({
+          description: a.description,
+          passed: false,
+        })),
+        passed: false,
+        durationMs: 0,
+        usage: emptyUsageStats(),
+      };
+    }
+
     trialResults.push(trial);
     mergeUsageStats(totalUsage, trial.usage);
 

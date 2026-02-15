@@ -10,9 +10,9 @@ export default defineConfig({
     hookTimeout: 120000, // 2 minutes for setup/teardown
     reporters: ['default'],
     env: loadEnv('test', process.cwd(), ''),
-    // Run tests sequentially — SDK tests are expensive and stateful
     pool: 'forks',
-    maxWorkers: 1,
-    fileParallelism: false,
+    // Default 2 workers to stay within Anthropic rate limits.
+    // Override with E2E_MAX_CONCURRENCY for higher-tier accounts.
+    maxWorkers: process.env.E2E_MAX_CONCURRENCY ? parseInt(process.env.E2E_MAX_CONCURRENCY) : 2,
   },
 });

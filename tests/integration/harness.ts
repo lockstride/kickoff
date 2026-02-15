@@ -29,7 +29,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const PLUGIN_ROOT = resolve(__dirname, '../../plugin');
 
-const client = new Anthropic();
+const client = new Anthropic({ maxRetries: 5 });
 
 export const GENERATION_MODEL = process.env.INTEGRATION_GENERATION_MODEL ?? 'claude-haiku-4-5';
 export const GRADER_MODEL = process.env.INTEGRATION_GRADER_MODEL ?? 'claude-haiku-4-5';
@@ -164,7 +164,26 @@ export async function evaluateTask(
 
   for (let i = 1; i <= task.trials; i++) {
     onTrialStart?.(i);
-    const trial = await runTrial(task, i);
+
+    let trial: Trial;
+    try {
+      trial = await runTrial(task, i);
+    } catch (error) {
+      // API error (e.g., 429 rate limit) — treat as failed trial so usage is preserved
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      trial = {
+        taskName: task.name,
+        trialNumber: i,
+        transcript: [],
+        output: '',
+        graderResults: [],
+        passed: false,
+        durationMs: 0,
+        usage: emptyUsageStats(),
+        error: errorMsg,
+      };
+    }
+
     trialResults.push(trial);
     mergeUsageStats(totalUsage, trial.usage);
     onTrialComplete?.(trial);

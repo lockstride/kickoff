@@ -86,9 +86,18 @@ git checkout -b feature/your-feature-name
 # Run tests frequently during development
 pnpm test:watch
 
-# Before committing
-pnpm pre-commit # Runs automatically via Husky
+# After making changes - ALWAYS run pre-commit
+pnpm pre-commit
+
+# Before committing (also runs automatically via Husky)
+pnpm pre-commit
 ```
+
+**IMPORTANT - Test Execution Rules**:
+- **ALWAYS** run `pnpm pre-commit` after changes (linting, formatting, static tests)
+- **NEVER** automatically run `pnpm test:integration` or `pnpm test:e2e` unless explicitly requested
+- Integration and E2E tests are expensive ($) to run
+- Run expensive tests only when specifically asked
 
 ### 3. Commit Standards
 
@@ -122,10 +131,9 @@ Closes #42
 ### 4. Pull Request Process
 
 1. **Self-Review**:
- - Run full test suite: `pnpm test`
- - Check linting: `pnpm lint`
- - Verify formatting: `pnpm format:check`
+ - Run pre-commit checks: `pnpm pre-commit`
  - Review your own diff
+ - **Do NOT run** `pnpm test:integration` or `pnpm test:e2e` (expensive - run only if explicitly required)
 
 2. **PR Description**:
  - Link related issues
@@ -285,6 +293,8 @@ Integration tests (content quality evaluation) required for:
 pnpm test:integration
 ```
 
+**⚠️ DO NOT run automatically** - Only execute when explicitly requested due to cost ($0.50-$2.00 per run).
+
 ### E2E Tests (Conditional)
 
 E2E tests (SDK-based orchestration) required for:
@@ -296,11 +306,13 @@ E2E tests (SDK-based orchestration) required for:
 pnpm test:e2e
 ```
 
+**⚠️ DO NOT run automatically** - Only execute when explicitly requested due to cost ($0.50-$2.00 per test).
+
 **Cost Awareness**:
 - Integration tests cost $0.50-$2.00 per run
 - E2E tests cost $0.50-$2.00 per test
-- Use judiciously, not for every PR
-- Required before major releases
+- **NEVER** run these tests unless explicitly requested
+- Run manually only when necessary or before major releases
 
 **For detailed guidance**, see:
 - [Testing Guide](docs/testing.md) — Complete testing documentation

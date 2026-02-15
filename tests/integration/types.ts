@@ -156,6 +156,8 @@ export interface Trial {
   passed: boolean;
   durationMs: number;
   usage: UsageStats;
+  /** Error message when trial failed due to infrastructure error (e.g., rate limit) */
+  error?: string;
 }
 
 export interface EvalResult {
