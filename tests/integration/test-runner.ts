@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { evaluateTask, GENERATION_MODEL, GRADER_MODEL, MIN_PASS_RATE } from './harness';
 import { calculateRequiredPasses, printTaskSummary } from './utils';
 import { progress } from './progress';
+import { globalUsage } from './global-usage';
 import type { Task, EvalResult } from './types';
 
 /**
@@ -28,6 +29,7 @@ export function createTaskTest(task: Task): void {
       if (result) {
         const minPassRate = task.success_criteria.min_pass_rate ?? MIN_PASS_RATE;
         printTaskSummary(result, minPassRate);
+        globalUsage.add(result.totalUsage);
       }
     });
 

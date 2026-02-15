@@ -2,16 +2,16 @@ import { describe, it, expect } from 'vitest';
 import { existsSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { fixtureManifest, type FixtureDefinition } from '../e2e/fixtures/manifest';
+import { fixtureManifest, type FixtureDefinition } from '../integration/fixtures/manifest';
 import { listMarkdownFiles, getBasename } from '../utils';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const E2E_DIR = resolve(__dirname, '../e2e');
+const INTEGRATION_DIR = resolve(__dirname, '../integration');
 const PLUGIN_ROOT = resolve(__dirname, '../../plugin');
 const TEMPLATES_DIR = join(PLUGIN_ROOT, 'skills', 'generating-documents', 'assets', 'templates');
 
-describe('E2E fixture manifest completeness', () => {
+describe('integration fixture manifest completeness', () => {
   it('should have at least one fixture defined', () => {
     expect(fixtureManifest.length).toBeGreaterThan(0);
   });
@@ -28,7 +28,7 @@ describe('E2E fixture manifest completeness', () => {
     });
 
     it('should have a fixture file on disk', () => {
-      const fixturePath = join(E2E_DIR, 'fixtures', fixtureDef.fixture);
+      const fixturePath = join(INTEGRATION_DIR, 'fixtures', fixtureDef.fixture);
       expect(existsSync(fixturePath)).toBe(true);
     });
 

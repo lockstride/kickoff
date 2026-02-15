@@ -24,6 +24,7 @@ This document defines how contributors work on the Kickoff plugin project. It es
 - **[Principles & Standards](docs/component-architecture/principles-and-standards.md)**: Core architectural principles and open standards
 - **[Kickoff Architecture](docs/kickoff-architecture.md)**: Kickoff-specific architectural patterns
 - **[Development Setup](docs/development.md)**: Technical setup and development instructions
+- **[Testing Guide](docs/testing.md)**: Comprehensive testing documentation (static, integration, E2E)
 
 ---
 
@@ -62,7 +63,7 @@ Handle edge cases thoughtfully:
 Testing is not optional:
 - Write tests before or alongside implementation
 - All features require static test coverage
-- Major changes require E2E validation
+- Major changes require integration/E2E validation
 
 ---
 
@@ -190,11 +191,18 @@ Closes #42
 - Use descriptive test names
 - Avoid brittle tests (no hardcoded dates/paths)
 
-**E2E Tests**:
+**Integration Tests** (content quality):
 - Required for major features
 - Document expected behavior
 - Include reference solutions
 - Note cost/time implications
+
+**E2E Tests** (orchestration via Claude Agent SDK):
+- Required for workflow changes
+- Validate agent resolution and tool routing
+- Short-circuit interactive elements with pre-seeded fixtures
+
+See [Testing Guide](docs/testing.md) for comprehensive guidance on all test tiers.
 
 ---
 
@@ -249,6 +257,8 @@ Closes #42
 
 ## Testing Requirements
 
+All changes must include appropriate test coverage. See [Testing Guide](docs/testing.md) for comprehensive documentation.
+
 ### Static Tests (Required)
 
 All changes must include static tests:
@@ -263,22 +273,40 @@ pnpm test
 - Bug fixes: Add regression test
 - Refactors: Ensure existing tests pass
 
-### E2E Tests (Conditional)
+### Integration Tests (Conditional)
 
-E2E tests required for:
+Integration tests (content quality evaluation) required for:
 - New document generation workflows
 - Changes to agent methodology
 - Template structure modifications
 - Quality-impacting refactors
 
 ```bash
+pnpm test:integration
+```
+
+### E2E Tests (Conditional)
+
+E2E tests (SDK-based orchestration) required for:
+- Workflow routing changes
+- Agent identifier or resolution changes
+- Skill invocation or handoff changes
+
+```bash
 pnpm test:e2e
 ```
 
 **Cost Awareness**:
-- E2E tests cost $0.50-$2.00 per run
+- Integration tests cost $0.50-$2.00 per run
+- E2E tests cost $0.50-$2.00 per test
 - Use judiciously, not for every PR
 - Required before major releases
+
+**For detailed guidance**, see:
+- [Testing Guide](docs/testing.md) — Complete testing documentation
+- When to run each test tier
+- Adding new tests
+- Troubleshooting test failures
 
 ### Manual Testing
 
@@ -310,6 +338,7 @@ Documentation must be updated for:
 - **[Orchestration & Decisions](docs/component-architecture/orchestration-and-decisions.md)**: Patterns and component selection
 - **[Kickoff Architecture](docs/kickoff-architecture.md)**: Kickoff-specific architectural patterns
 - **[Development Guide](docs/development.md)**: Setup, testing, and development workflow
+- **[Testing Guide](docs/testing.md)**: Comprehensive testing documentation (static, integration, E2E)
 - **[Workflow Patterns](docs/workflow-patterns.md)**: Reusable interaction patterns
 
 **User-Facing:**
@@ -383,7 +412,7 @@ Follow semantic versioning (MAJOR.MINOR.PATCH):
 
 ### Release Checklist
 
-- [ ] All tests pass (static + E2E)
+- [ ] All tests pass (static + integration + E2E)
 - [ ] Documentation updated
 - [ ] CHANGELOG updated
 - [ ] Version bumped in package.json
@@ -411,6 +440,7 @@ Follow semantic versioning (MAJOR.MINOR.PATCH):
 
 **Development:**
 - **[Development Guide](docs/development.md)**: Setup and workflow instructions
+- **[Testing Guide](docs/testing.md)**: Complete testing documentation
 
 ### Contact
 

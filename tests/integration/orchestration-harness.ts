@@ -21,19 +21,28 @@ import type {
   ToolInvocation,
   AssertionResult,
   MockToolHandler,
+  UsageStats,
 } from './types';
 import { ORCHESTRATION_TOOLS, DEFAULT_MOCK_HANDLERS, PLUGIN_ROOT } from './orchestration-tools';
-import { calculateRequiredPasses, formatDuration } from './utils';
+import {
+  calculateRequiredPasses,
+  formatDuration,
+  emptyUsageStats,
+  accumulateUsage,
+  mergeUsageStats,
+  formatTokenCount,
+} from './utils';
+import { globalUsage } from './global-usage';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const client = new Anthropic();
 
-export const ORCHESTRATION_MODEL = process.env.E2E_GENERATION_MODEL ?? 'claude-haiku-4-5';
+export const ORCHESTRATION_MODEL = process.env.INTEGRATION_GENERATION_MODEL ?? 'claude-haiku-4-5';
 
-const DEFAULT_MIN_PASS_RATE = process.env.E2E_MIN_PASS_RATE
-  ? parseFloat(process.env.E2E_MIN_PASS_RATE)
+const DEFAULT_MIN_PASS_RATE = process.env.INTEGRATION_MIN_PASS_RATE
+  ? parseFloat(process.env.INTEGRATION_MIN_PASS_RATE)
   : 0.33;
 
 const MAX_TOOL_ITERATIONS = 15;
@@ -79,6 +88,7 @@ export async function runOrchestratorTrial(
 ): Promise<OrchestratorTrialResult> {
   const startTime = Date.now();
   const toolInvocations: ToolInvocation[] = [];
+  const usage: UsageStats = emptyUsageStats();
   let invocationOrder = 0;
 
   const systemPrompt = composeOrchestratorPrompt(task);
@@ -97,6 +107,7 @@ export async function runOrchestratorTrial(
       messages: transcript,
       tools: ORCHESTRATION_TOOLS,
     });
+    accumulateUsage(usage, response.usage, ORCHESTRATION_MODEL);
 
     // Record tool invocations
     const toolUseBlocks = response.content.filter(
@@ -157,6 +168,7 @@ export async function runOrchestratorTrial(
     assertionResults,
     passed,
     durationMs: Date.now() - startTime,
+    usage,
   };
 }
 
@@ -168,6 +180,7 @@ export async function evaluateOrchestratorTask(
   task: OrchestratorTask
 ): Promise<OrchestratorEvalResult> {
   const trialResults: OrchestratorTrialResult[] = [];
+  const totalUsage: UsageStats = emptyUsageStats();
   const minPassRate = task.min_pass_rate ?? DEFAULT_MIN_PASS_RATE;
   const requiredPasses = calculateRequiredPasses(task.trials, minPassRate);
   const maxAllowedFailures = task.trials - requiredPasses;
@@ -180,18 +193,19 @@ export async function evaluateOrchestratorTask(
 
     const trial = await runOrchestratorTrial(task, i);
     trialResults.push(trial);
+    mergeUsageStats(totalUsage, trial.usage);
 
     if (trial.passed) {
       passCount++;
       console.log(
-        `[${task.name}] Trial ${i.toString()} PASSED (${formatDuration(trial.durationMs)})`
+        `[${task.name}] Trial ${i.toString()} PASSED (${formatDuration(trial.durationMs)}, $${trial.usage.estimatedCostUsd.toFixed(4)})`
       );
       if (passCount >= requiredPasses) break;
     } else {
       failCount++;
       const failures = trial.assertionResults.filter((r) => !r.passed).map((r) => r.description);
       console.log(
-        `[${task.name}] Trial ${i.toString()} FAILED (${formatDuration(trial.durationMs)}): ${failures.join(', ')}`
+        `[${task.name}] Trial ${i.toString()} FAILED (${formatDuration(trial.durationMs)}, $${trial.usage.estimatedCostUsd.toFixed(4)}): ${failures.join(', ')}`
       );
       if (failCount > maxAllowedFailures) break;
     }
@@ -204,6 +218,7 @@ export async function evaluateOrchestratorTask(
     passed: passCount,
     passRate: trialResults.length > 0 ? passCount / trialResults.length : 0,
     trialResults,
+    totalUsage,
   };
 }
 
@@ -235,6 +250,7 @@ export function createOrchestratorTest(task: OrchestratorTask): void {
     afterAll(() => {
       if (result) {
         printOrchestratorSummary(result, task);
+        globalUsage.add(result.totalUsage);
       }
     });
 
@@ -272,6 +288,14 @@ function printOrchestratorSummary(result: OrchestratorEvalResult, task: Orchestr
   console.log(
     `  ${icon}: ${result.task} — ${result.passed.toString()}/${result.trialsRun.toString()} trials passed (${rate})`
   );
+
+  // Usage summary
+  const u = result.totalUsage;
+  if (u.apiCalls > 0) {
+    console.log(
+      `  Cost: $${u.estimatedCostUsd.toFixed(4)}  Tokens: ${formatTokenCount(u.inputTokens)} in / ${formatTokenCount(u.outputTokens)} out  API calls: ${u.apiCalls.toString()}`
+    );
+  }
 
   if (!taskPassed) {
     for (const trial of result.trialResults) {

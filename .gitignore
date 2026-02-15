@@ -21,7 +21,8 @@ Thumbs.db
 # Node modules (if any scripts use Node)
 node_modules/
 
-# E2E test transcripts (contain API responses)
+# Test transcripts (contain API responses)
+tests/integration/transcripts/*.json
 tests/e2e/transcripts/*.json
 
 # Python cache (if any scripts use Python)

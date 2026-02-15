@@ -131,6 +131,19 @@ export interface ModelGraderDetails {
 }
 
 // ============================================================================
+// Usage Tracking
+// ============================================================================
+
+export interface UsageStats {
+  inputTokens: number;
+  outputTokens: number;
+  cacheCreationInputTokens: number;
+  cacheReadInputTokens: number;
+  apiCalls: number;
+  estimatedCostUsd: number;
+}
+
+// ============================================================================
 // Evaluation Results
 // ============================================================================
 
@@ -142,6 +155,7 @@ export interface Trial {
   graderResults: GraderResult[];
   passed: boolean;
   durationMs: number;
+  usage: UsageStats;
 }
 
 export interface EvalResult {
@@ -153,6 +167,7 @@ export interface EvalResult {
   passK: boolean;
   passRate: number;
   trialResults: Trial[];
+  totalUsage: UsageStats;
 }
 
 // ============================================================================
@@ -187,6 +202,7 @@ export interface OrchestratorTrialResult {
   assertionResults: AssertionResult[];
   passed: boolean;
   durationMs: number;
+  usage: UsageStats;
 }
 
 /** Result of evaluating an orchestration task across all trials */
@@ -197,6 +213,7 @@ export interface OrchestratorEvalResult {
   passed: number;
   passRate: number;
   trialResults: OrchestratorTrialResult[];
+  totalUsage: UsageStats;
 }
 
 /** Plugin file to load into orchestration system prompt */

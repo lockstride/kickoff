@@ -50,6 +50,12 @@ When asked product-brief questions, provide thoughtful answers that demonstrate:
         trigger: 'Alignment Check|Does this align|adjustments needed|proceed',
         user_message: 'Yes, that captures the product direction well. Please proceed.',
       },
+      {
+        // Explicit summary request - fires after alignment check to ensure conversation completes properly
+        trigger: 'proceed|continue|ready to',
+        user_message:
+          'Please provide a structured summary of our product brief session now. Include: value proposition, MVP features, UX priorities, technical constraints, and next steps.',
+      },
     ],
   },
   graders: [

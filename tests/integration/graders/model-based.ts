@@ -1,9 +1,10 @@
 import Anthropic from '@anthropic-ai/sdk';
-import type { GraderResult, ModelGraderDetails } from '../types';
+import type { GraderResult, ModelGraderDetails, UsageStats } from '../types';
+import { accumulateUsage } from '../utils';
 
 const client = new Anthropic();
 
-const GRADER_MODEL = process.env.E2E_GRADER_MODEL ?? 'claude-haiku-4-5';
+const GRADER_MODEL = process.env.INTEGRATION_GRADER_MODEL ?? 'claude-haiku-4-5';
 
 const GRADER_SYSTEM_PROMPT = `You are a strict document quality evaluator. You score AI-generated documents against rubrics.
 
@@ -26,7 +27,8 @@ export async function runModelGrader(
   output: string,
   rubric: string,
   threshold = 0.7,
-  reference?: string
+  reference?: string,
+  usageAccumulator?: UsageStats
 ): Promise<GraderResult> {
   const prompt = buildGraderPrompt(output, rubric, reference);
 
@@ -36,6 +38,10 @@ export async function runModelGrader(
     system: GRADER_SYSTEM_PROMPT,
     messages: [{ role: 'user', content: prompt }],
   });
+
+  if (usageAccumulator) {
+    accumulateUsage(usageAccumulator, response.usage, GRADER_MODEL);
+  }
 
   const responseText = response.content[0].type === 'text' ? response.content[0].text : '';
 

@@ -14,8 +14,14 @@ import type {
   GraderResult,
   GraderConfig,
   ConversationTurn,
+  UsageStats,
 } from './types';
-import { calculateRequiredPasses } from './utils';
+import {
+  calculateRequiredPasses,
+  emptyUsageStats,
+  accumulateUsage,
+  mergeUsageStats,
+} from './utils';
 import { runCodeGrader } from './graders/code-based';
 import { runModelGrader } from './graders/model-based';
 
@@ -25,11 +31,11 @@ const PLUGIN_ROOT = resolve(__dirname, '../../plugin');
 
 const client = new Anthropic();
 
-export const GENERATION_MODEL = process.env.E2E_GENERATION_MODEL ?? 'claude-haiku-4-5';
-export const GRADER_MODEL = process.env.E2E_GRADER_MODEL ?? 'claude-haiku-4-5';
+export const GENERATION_MODEL = process.env.INTEGRATION_GENERATION_MODEL ?? 'claude-haiku-4-5';
+export const GRADER_MODEL = process.env.INTEGRATION_GRADER_MODEL ?? 'claude-haiku-4-5';
 
-export const MIN_PASS_RATE = process.env.E2E_MIN_PASS_RATE
-  ? parseFloat(process.env.E2E_MIN_PASS_RATE)
+export const MIN_PASS_RATE = process.env.INTEGRATION_MIN_PASS_RATE
+  ? parseFloat(process.env.INTEGRATION_MIN_PASS_RATE)
   : 0.33;
 
 // ============================================================================
@@ -39,6 +45,7 @@ export const MIN_PASS_RATE = process.env.E2E_MIN_PASS_RATE
 export async function runTrial(task: Task, trialNum: number): Promise<Trial> {
   const startTime = Date.now();
   const transcript: MessageParam[] = [];
+  const usage: UsageStats = emptyUsageStats();
 
   const systemPrompt = composeSystemPrompt(task);
   const userMessage = composeUserMessage(task);
@@ -51,6 +58,7 @@ export async function runTrial(task: Task, trialNum: number): Promise<Trial> {
     system: systemPrompt,
     messages: [{ role: 'user', content: userMessage }],
   });
+  accumulateUsage(usage, response.usage, GENERATION_MODEL);
 
   let output = response.content[0].type === 'text' ? response.content[0].text : '';
   transcript.push({ role: 'assistant', content: output });
@@ -77,6 +85,7 @@ export async function runTrial(task: Task, trialNum: number): Promise<Trial> {
           content: m.content as string,
         })),
       });
+      accumulateUsage(usage, response.usage, GENERATION_MODEL);
 
       output = response.content[0].type === 'text' ? response.content[0].text : '';
       transcript.push({ role: 'assistant', content: output });
@@ -96,8 +105,8 @@ export async function runTrial(task: Task, trialNum: number): Promise<Trial> {
           .map((m) => m.content as string)
           .join('\n\n---\n\n');
 
-  // Run graders on full conversation output
-  const graderResults = await runGraders(task.graders, fullOutput, task.reference_solution);
+  // Run graders on full conversation output (grader API costs accumulated into usage)
+  const graderResults = await runGraders(task.graders, fullOutput, task.reference_solution, usage);
 
   // Determine pass/fail based on success criteria
   const codeGradersPassed = graderResults.filter((g) => g.type === 'code').every((g) => g.passed);
@@ -128,6 +137,7 @@ export async function runTrial(task: Task, trialNum: number): Promise<Trial> {
     graderResults,
     passed,
     durationMs: Date.now() - startTime,
+    usage,
   };
 }
 
@@ -144,6 +154,7 @@ export async function evaluateTask(
   onTrialComplete?: TrialCompleteCallback
 ): Promise<EvalResult> {
   const trialResults: Trial[] = [];
+  const totalUsage: UsageStats = emptyUsageStats();
   const minPassRate = task.success_criteria.min_pass_rate ?? MIN_PASS_RATE;
   const requiredPasses = calculateRequiredPasses(task.trials, minPassRate);
   const maxAllowedFailures = task.trials - requiredPasses;
@@ -155,6 +166,7 @@ export async function evaluateTask(
     onTrialStart?.(i);
     const trial = await runTrial(task, i);
     trialResults.push(trial);
+    mergeUsageStats(totalUsage, trial.usage);
     onTrialComplete?.(trial);
 
     if (trial.passed) {
@@ -181,6 +193,7 @@ export async function evaluateTask(
     passK: passCount === task.trials,
     passRate: passCount / trialResults.length,
     trialResults,
+    totalUsage,
   };
 }
 
@@ -191,7 +204,8 @@ export async function evaluateTask(
 async function runGraders(
   graders: GraderConfig[],
   output: string,
-  referencePath?: string
+  referencePath?: string,
+  usageAccumulator?: UsageStats
 ): Promise<GraderResult[]> {
   const results: GraderResult[] = [];
   const reference = referencePath ? loadReference(referencePath) : undefined;
@@ -204,7 +218,8 @@ async function runGraders(
         output,
         grader.rubric,
         grader.threshold ?? 0.7,
-        reference
+        reference,
+        usageAccumulator
       );
       results.push(result);
     }

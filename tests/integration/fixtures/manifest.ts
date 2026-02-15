@@ -1,5 +1,5 @@
 /**
- * Fixture manifest defining all E2E test fixtures and their template dependencies.
+ * Fixture manifest defining all integration test fixtures and their template dependencies.
  * Used for fixture freshness checking and automated regeneration.
  */
 

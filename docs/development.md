@@ -16,8 +16,8 @@ For Kickoff-specific architectural patterns, see [kickoff-architecture.md](kicko
 
 ### Optional
 - **GitHub CLI** (`gh`): Only required for the `/lockstride-kickoff:create-repo` command (has fallback if not available)
-- **Anthropic API Key**: For running E2E tests that evaluate plugin output quality
-- **Pandoc**: For generate-external E2E tests (https://pandoc.org/)
+- **Anthropic API Key**: For running integration and E2E tests (see [testing.md](testing.md))
+- **Pandoc**: For generate-external integration tests (https://pandoc.org/)
 
 ## Getting Started
 
@@ -34,11 +34,13 @@ For Kickoff-specific architectural patterns, see [kickoff-architecture.md](kicko
 
    This will automatically run the `prepare` script to set up Git hooks via Husky.
 
-3. **Set up environment variables** (optional, for E2E tests):
+3. **Set up environment variables** (optional, for tests):
    ```bash
    cp .env.example .env
    # Edit .env and add your ANTHROPIC_API_KEY
    ```
+
+   See [testing.md](testing.md#environment-variables) for full details on test configuration.
 
 4. **Run Claude with the local plugin**:
 
@@ -104,136 +106,43 @@ For Kickoff-specific architectural patterns, see [kickoff-architecture.md](kicko
 
 ## Environment Variables
 
-Create a `.env` file in the project root for E2E testing configuration:
+Create a `.env` file in the project root:
 
 ```bash
-# Required for E2E tests
+# Required for integration and E2E tests (see testing.md for details)
 ANTHROPIC_API_KEY=sk-ant-...
 
-# Optional: Override default models for E2E tests (e.g., claude-haiku-4-5, claude-sonnet-4-5, claude-opus-4-5)
-E2E_GENERATION_MODEL=claude-haiku-4-5  # Default: claude-haiku-4-5
-E2E_GRADER_MODEL=claude-haiku-4-5       # Default: claude-haiku-4-5
-
-# Optional: Minimum pass rate for E2E tests (fraction of trials that must pass)
-E2E_MIN_PASS_RATE=0.33                  # Default: 0.33 (1 of 3 trials)
+# Optional: Override default models and pass rates for integration tests
+INTEGRATION_GENERATION_MODEL=claude-haiku-4-5
+INTEGRATION_GRADER_MODEL=claude-haiku-4-5
+INTEGRATION_MIN_PASS_RATE=0.33
 ```
+
+See [testing.md](testing.md#environment-variables) for complete documentation on test configuration.
 
 **Note**: The `.env` file is gitignored to prevent accidentally committing API keys.
 
 ## Testing
 
-### Static Tests
-Static tests validate plugin structure, manifests, templates, and agent definitions without making API calls:
+The Kickoff plugin uses three test tiers: **Static** (fast validation), **Integration** (content quality), and **E2E** (orchestration).
 
 ```bash
-# Run all static tests
+# Static tests (no API calls, runs in <2s)
 pnpm test
 
-# Watch mode for development
-pnpm test:watch
-```
+# Integration tests (requires ANTHROPIC_API_KEY)
+pnpm test:integration
 
-### E2E Tests
-E2E tests invoke actual Claude models to generate content and evaluate quality. These are expensive (time and API costs) and should be run intentionally.
-
-Each feature has its own test file (`[feature-name].e2e.ts`), enabling targeted test runs:
-
-```bash
-# Run all E2E tests (requires ANTHROPIC_API_KEY)
+# E2E tests (requires ANTHROPIC_API_KEY)
 pnpm test:e2e
-
-# Run a single feature test
-pnpm test:e2e brief-generation
-
-# Run multiple specific tests
-pnpm test:e2e brief-generation market-analysis
-
-# Run tests matching a pattern
-pnpm test:e2e edge-
 ```
 
-**Available test files**:
-- `brief-generation.e2e.ts` — Business brief generation
-- `market-analysis.e2e.ts` — Market analysis generation
-- `naming-exercise.e2e.ts` — Naming workflow
-- `edge-minimal-context.e2e.ts` — Edge case handling
-- `product-spec.e2e.ts` — Product spec generation
-- `challenger-engagement.e2e.ts` — SKEPTIC MODE challenger (market analysis)
-- `challenger-product-spec.e2e.ts` — SKEPTIC MODE challenger (product spec)
-- `challenger-business-plan.e2e.ts` — SKEPTIC MODE challenger (business plan)
-
-**E2E Test Configuration**:
-- **Trials per task**: 3 attempts (with early exit optimization)
-- **Pass criteria**: Configurable via `E2E_MIN_PASS_RATE` (default: 33% = 1 of 3 trials)
-- **Models**: Uses Sonnet for generation, Haiku for grading (configurable)
-- **Timeouts**: 15 minutes per task maximum
-- **Execution**: Sequential to avoid API rate limits
-- **Cost**: Approximately $0.50-$2.00 per full test suite run
-
-**E2E Test Output**:
-- Real-time progress indicators for each task and trial
-- Final summary showing pass rates and detailed failure reasons
-- Full transcripts saved to `tests/e2e/transcripts/*.json` for debugging
-
-### E2E Test Fixtures
-
-Fixtures are pre-generated documents used to isolate specific test scenarios without running full document generation. This significantly reduces test execution time and API costs.
-
-**Use cases**:
-1. **Challenger tests** — Use a fixture as the document being challenged (skips document generation entirely, ~27x faster)
-2. **Document chain tests** — Use a fixture as input context for generation (tests realistic workflow propagation)
-
-**Fixture structure**:
-```
-tests/e2e/fixtures/
-├── manifest.ts              # Defines all fixtures and their template mappings
-├── generator.ts             # Auto-regeneration logic using Haiku
-├── market-analysis-quicktest.md
-├── business-brief-payflow.md
-├── product-brief-metricsdash.md
-├── product-spec-metricsdash.md
-└── business-plan-payflow.md
-```
-
-**Automatic freshness checking**:
-When templates change, fixtures may become stale (missing new sections, outdated structure). The E2E setup automatically:
-1. Compares fixture modification times against corresponding templates
-2. Regenerates stale fixtures using Haiku with seed data from the manifest
-3. Logs regeneration activity during test setup
-
-This prevents false negatives from template/fixture drift.
-
-**Adding a new fixture**:
-1. Add an entry to `fixtures/manifest.ts`:
-   ```typescript
-   {
-     fixture: 'my-document.md',
-     template: 'my-template',
-     startup: 'StartupName',
-     documentType: 'my-template',
-     context: 'Minimal context for generation...',
-   }
-   ```
-2. Run the E2E tests — the fixture will be auto-generated
-3. Or manually create `fixtures/my-document.md` matching the template structure
-
-**Using fixtures in tasks**:
-```typescript
-// Challenger mode: fixture is the document being challenged
-{
-  agent: 'challenger',
-  fixture: 'market-analysis-quicktest.md',
-  document_type: 'market-analysis',
-  context: 'Yes, challenge me on this analysis.',
-}
-
-// Document chain: fixture is input context for generation
-{
-  command: '/lockstride-kickoff:market',
-  context_fixture: 'business-brief-payflow.md',
-  context: 'Generate market analysis based on the brief above.',
-}
-```
+**See [testing.md](testing.md) for comprehensive testing documentation**, including:
+- When to use each test tier
+- Available test files and what they cover
+- Test fixtures and configuration
+- Adding new tests
+- Troubleshooting and best practices
 
 ## Project Structure
 
@@ -317,58 +226,19 @@ kickoff/
 │   └── development.md            # This file
 ├── tests/
 │   ├── static/                   # Fast validation tests
-│   └── e2e/                      # Model quality evaluation tests
-│       ├── *.e2e.ts              # Individual feature test files
-│       ├── tasks/                # Test task definitions
-│       ├── graders/              # Code-based and model-based graders
-│       ├── fixtures/             # Pre-generated documents for testing
-│       ├── test-runner.ts        # Shared test wrapper
-│       ├── utils.ts              # Shared utilities
-│       └── transcripts/          # API response logs (gitignored)
-└── package.json
-```kickoff/
-├── .claude-plugin/
-│   └── plugin.json               # Plugin manifest
-├── agents/                       # Agent personas
-│   └── business-writer.md        # Autonomous document generation with methodology skills
-├── commands/                     # Utility commands only
-│   ├── config.md                 # Configuration management
-│   ├── init.md                   # Orchestration/setup
-│   ├── status.md                 # Display status
-│   └── create-repo.md            # Git side effects
-├── docs/
-│   ├── component-architecture/   # General plugin architecture principles
-│   ├── kickoff-architecture.md   # Kickoff-specific architectural patterns
-│   └── development.md            # This file
-├── skills/
-│   ├── generating-documents/     # Main entry point for all doc generation
-│   │   ├── SKILL.md              # State-aware routing, user prompts
-│   │   ├── references/
-│   │   │   ├── internal-workflow.md   # Document generation flow
-│   │   │   └── external-workflow.md   # Pandoc export flow
-│   │   ├── scripts/
-│   │   │   └── export-docx.mjs   # Cross-platform export script
-│   │   └── assets/
-│   │       ├── templates/        # 10 markdown document templates
-│   │       └── pandoc-templates/ # Pandoc reference documents (reference.docx/pptx)
-│   ├── brainstorming-ideas/      # Methodology skill (preloaded by business-writer)
-│   ├── researching-markets/      # Methodology skill (preloaded by business-writer)
-│   ├── writing-content/          # Methodology skill (preloaded by business-writer)
-│   ├── synthesizing-content/     # Methodology skill (preloaded by business-writer)
-│   ├── challenging-assumptions/  # SKEPTIC MODE (separate workflow)
-│   │   ├── SKILL.md
-│   │   └── references/domains/   # 5 challenge domain files
-│   └── naming-business/          # Routes rename vs naming exercise
-├── tests/
-│   ├── static/                   # Fast validation tests
-│   └── e2e/                      # Model quality evaluation tests
-│       ├── *.e2e.ts              # Individual feature test files
-│       ├── tasks/                # Test task definitions
-│       ├── graders/              # Code-based and model-based graders
-│       ├── fixtures/             # Pre-generated documents for testing
-│       ├── test-runner.ts        # Shared test wrapper
-│       ├── utils.ts              # Shared utilities
-│       └── transcripts/          # API response logs (gitignored)
+│   ├── integration/              # Content quality evaluation (Anthropic API)
+│   │   ├── *.e2e.ts              # Individual feature test files
+│   │   ├── tasks/                # Test task definitions
+│   │   ├── graders/              # Code-based and model-based graders
+│   │   ├── fixtures/             # Pre-generated documents for testing
+│   │   ├── test-runner.ts        # Shared test wrapper
+│   │   ├── utils.ts              # Shared utilities
+│   │   └── transcripts/          # API response logs (gitignored)
+│   └── e2e/                      # Orchestration tests (Claude Agent SDK)
+│       ├── *.e2e.ts              # Flow test files
+│       ├── sdk-harness.ts        # SDK test harness
+│       ├── fixtures/             # Pre-seeded input files
+│       └── transcripts/          # SDK run logs (gitignored)
 └── package.json
 ```
 
@@ -481,7 +351,7 @@ fix: correct section validation in market analysis template
 
 docs: update architecture guide with new component patterns
 
-test: add E2E coverage for challenger business plan workflow
+test: add integration coverage for challenger business plan workflow
 ```
 
 ### Code Quality
@@ -586,57 +456,6 @@ pnpm pre-commit
 - Use HTML comments for guidance
 - Don't include process instructions
 
-### Adding E2E Test Tasks
-
-1. Create task definition in `tests/e2e/tasks/`:
-   ```typescript
-   // tests/e2e/tasks/my-feature.ts
-   import type { Task } from '../types';
-
-   export const myFeatureTask: Task = {
-     name: 'my-feature',
-     trials: 3,
-     context: {
-       files: ['agents/writer.md', 'skills/document-templates/templates/my-template.md'],
-       userPrompt: 'Generate my-template.md for...',
-     },
-     graders: [
-       {
-         type: 'code',
-         checks: {
-           sections_present: ['## Section 1', '## Section 2'],
-           min_word_count: 500,
-         },
-       },
-       {
-         type: 'model',
-         rubric: 'Evaluate quality, accuracy, completeness...',
-       },
-     ],
-     success_criteria: {
-       all_code_graders_pass: true,
-       model_grader_score: 'B',
-       min_pass_rate: 0.33,
-     },
-     reference_solution: 'High-quality output should...',
-   };
-   ```
-
-2. Export from `tests/e2e/tasks/index.ts`:
-   ```typescript
-   export { myFeatureTask } from './my-feature';
-   // Add to allTasks array
-   ```
-
-3. Create the test file in `tests/e2e/`:
-   ```typescript
-   // tests/e2e/my-feature.e2e.ts
-   import { myFeatureTask } from './tasks';
-   import { createTaskTest } from './test-runner';
-
-   createTaskTest(myFeatureTask);
-   ```
-
 ## Continuous Integration
 
 The project uses GitHub Actions to run CI checks on all pushes to `main` and pull requests.
@@ -663,7 +482,7 @@ pnpm ci:check
 
 This runs all the same checks that CI will run, ensuring your changes will pass.
 
-**Note**: E2E tests are not included in CI due to API costs. Run them manually before major releases.
+**Note**: Integration and E2E tests are not included in CI due to API costs. See [testing.md](testing.md) for when to run them manually.
 
 ### Plugin Distribution Sync
 
@@ -730,12 +549,11 @@ For testing, you may want to set custom paths in `~/.lockstride/kickoff/config.j
 ## Best Practices
 
 1. **Follow architectural principles** - see [general-architecture.md](general-architecture.md) for component responsibilities and separation of concerns
-2. **Always run static tests** before committing (`pnpm test`)
-3. **Run E2E tests** before major releases or after significant template changes
-4. **Type-check** your code (`pnpm exec tsc --noEmit`)
-5. **Keep API keys secure** - never commit `.env` files
-6. **Document template changes** - update reference solutions in E2E tasks
-7. **Maintain single source of truth** - avoid duplicating guidance across components
+2. **Run tests appropriately** - see [testing.md](testing.md#best-practices) for guidance on when to run each test tier
+3. **Type-check** your code (`pnpm exec tsc --noEmit`)
+4. **Keep API keys secure** - never commit `.env` files
+5. **Document template changes** - update reference solutions in integration tasks
+6. **Maintain single source of truth** - avoid duplicating guidance across components
 
 ## Guidance Placement for Document Generation
 
@@ -789,11 +607,6 @@ When working on document generation features, guidance must be placed in the cor
 
 ## Troubleshooting
 
-### E2E Tests Hanging
-- Check API key is valid
-- Verify network connectivity to Anthropic API
-- Review `tests/e2e/transcripts/*.json` for error details
-
 ### Import Errors
 - Ensure `pnpm install` has been run
 - Check TypeScript version compatibility
@@ -803,13 +616,21 @@ When working on document generation features, guidance must be placed in the cor
 - Check file paths in plugin manifest
 - Use absolute path with `--plugin-dir`
 
+### Test Issues
+
+See [testing.md](testing.md#troubleshooting) for comprehensive test troubleshooting, including:
+- Static test failures
+- Integration/E2E tests hanging
+- Fixture regeneration issues
+- API key and network problems
+
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Read [general-architecture.md](general-architecture.md) and [kickoff-architecture.md](kickoff-architecture.md) to understand design principles
 4. Make your changes following the architectural guidelines
-5. Run tests (`pnpm test` and optionally `pnpm test:e2e`)
+5. Run tests (`pnpm test` and optionally `pnpm test:integration` / `pnpm test:e2e`)
 6. Submit a pull request
 
 **Before submitting:**

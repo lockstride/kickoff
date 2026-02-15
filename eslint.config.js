@@ -32,7 +32,14 @@ export default tseslint.config(
     },
   },
   {
-    ignores: ['dist/', 'node_modules/', '**/*.js', '**/*.mjs', 'tests/e2e/transcripts/'],
+    ignores: [
+      'dist/',
+      'node_modules/',
+      '**/*.js',
+      '**/*.mjs',
+      'tests/integration/transcripts/',
+      'tests/e2e/transcripts/',
+    ],
   },
   prettier
 );

@@ -196,7 +196,7 @@ To add a new research domain:
 2. Follow researching-markets structure: protocol, quality gates, error handling
 3. Set frontmatter: `user-invocable: false`, `disable-model-invocation: true`
 4. Update templates needing this research: add to `research_skills` list in frontmatter
-5. Add tests (static + E2E if appropriate)
+5. Add tests (static + integration/E2E if appropriate)
 
 ### Template-Driven Research
 

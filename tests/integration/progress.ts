@@ -1,5 +1,5 @@
 /**
- * Progress display for E2E tests.
+ * Progress display for integration tests.
  * Simple logging approach that works reliably with Vitest.
  */
 
