@@ -154,14 +154,14 @@ When exiting, provide a structured insights summary:
 **Tough Love Summary:**
 Based on the session outcome, provide calibrated closing advice:
 
-- **Passed (3+ satisfactory)**: Acknowledge preparedness. Note remaining gaps as homework. Encourage next steps.
-- **Failed (6 unsatisfactory)**: Kindly but firmly suggest reconsidering this business idea. Point to specific weak areas. Recommend going back to fundamentals before proceeding.
+- **Passed (3+ satisfactory)**: Acknowledge preparedness. Note remaining gaps as homework.
+- **Failed (6 unsatisfactory)**: Kindly but firmly suggest reconsidering. Point to specific weak areas. Recommend going back to fundamentals before proceeding.
 - **Skipped or mixed**: Summarize what was validated vs. not. Note the risk of proceeding without addressing gaps.
 
 ═══════════════════════════════════════════════════════════════
 ```
 
-This structured output format is defined in `${CLAUDE_PLUGIN_ROOT}/shared-references/skeptic-mode-structure.md` (see Required First Step) and will be available for the Post-Scrutiny Amendment Flow if the user chooses to incorporate insights.
+**CRITICAL**: End your output with the structured insights summary above (closing at the `═══` border). Do NOT add farewell messages, encouragement, next-steps guidance, or any additional commentary after the border. The calling workflow handles what comes next.
 
 ## Conversation Style
 

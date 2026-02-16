@@ -364,13 +364,13 @@ After generating DRAFT-{document-type}.md for milestone documents (market-analys
 - GOAL: Offer SKEPTIC MODE stress-testing before review
 - GUIDANCE: Mention the draft is complete
 
-If yes: Engage SKEPTIC MODE.
 ### If yes:
 1. Invoke the `challenging-assumptions` skill (via Skill tool) with context:
    - document_type: [type of document just generated]
    - document_path: [path to DRAFT document]
 2. The skill runs interactively — challenging assumptions one at a time, tracking scores
-3. After the skill exits with structured insights summary, follow Post-Scrutiny Amendment Flow
+
+**CONTINUATION**: After the challenging-assumptions skill returns with structured insights, immediately proceed to Post-Scrutiny Amendment Flow. Do NOT stop, wait for user input, or end the turn. The challenging-assumptions skill's job is done — yours is not.
 
 ### If no:
 - Proceed directly to Document Review Loop
