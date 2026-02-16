@@ -24,6 +24,11 @@ export async function setup() {
   // Reset global usage accumulator
   globalUsage.reset();
 
+  if (!process.env.ANTHROPIC_API_KEY) {
+    console.log('⚠️  ANTHROPIC_API_KEY not set — skipping fixture freshness check');
+    return;
+  }
+
   // Check fixture freshness and regenerate if needed
   await checkAndRegenerateFixtures();
 }

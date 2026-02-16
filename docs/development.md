@@ -227,7 +227,7 @@ kickoff/
 ├── tests/
 │   ├── static/                   # Fast validation tests
 │   ├── integration/              # Content quality evaluation (Anthropic API)
-│   │   ├── *.e2e.ts              # Individual feature test files
+│   │   ├── *.integration.ts      # Individual feature test files
 │   │   ├── tasks/                # Test task definitions
 │   │   ├── graders/              # Code-based and model-based graders
 │   │   ├── fixtures/             # Pre-generated documents for testing

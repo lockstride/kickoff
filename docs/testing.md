@@ -70,7 +70,7 @@ Integration tests invoke Claude models to generate content and evaluate quality 
 
 ### Running Integration Tests
 
-Each feature has its own test file (`[feature-name].e2e.ts`), enabling targeted test runs:
+Each feature has its own test file (`[feature-name].integration.ts`), enabling targeted test runs:
 
 ```bash
 # Run all integration tests (requires ANTHROPIC_API_KEY)
@@ -83,22 +83,10 @@ pnpm test:integration brief-generation
 pnpm test:integration brief-generation market-analysis
 
 # Run tests matching a pattern
-pnpm test:integration edge-
+pnpm test:integration challenger-
 ```
 
-### Available Test Files
-
-| Test File | What It Tests |
-|-----------|---------------|
-| `brief-generation.e2e.ts` | Business brief generation |
-| `market-analysis.e2e.ts` | Market analysis generation |
-| `naming-exercise.e2e.ts` | Naming workflow |
-| `edge-minimal-context.e2e.ts` | Edge case handling |
-| `product-spec.e2e.ts` | Product spec generation |
-| `challenger-engagement.e2e.ts` | SKEPTIC MODE challenger (market analysis) |
-| `challenger-product-spec.e2e.ts` | SKEPTIC MODE challenger (product spec) |
-| `challenger-business-plan.e2e.ts` | SKEPTIC MODE challenger (business plan) |
-| `orchestration-business-brief.e2e.ts` | Tool-use orchestration simulation |
+See `tests/integration/*.integration.ts` for available test files.
 
 ### Integration Test Configuration
 
@@ -229,7 +217,7 @@ This prevents false negatives from template/fixture drift.
 
 3. Create the test file in `tests/integration/`:
    ```typescript
-   // tests/integration/my-feature.e2e.ts
+   // tests/integration/my-feature.integration.ts
    import { myFeatureTask } from './tasks';
    import { createTaskTest } from './test-runner';
 
@@ -256,15 +244,10 @@ pnpm test:e2e
 pnpm test:e2e plugin-loading
 
 # Run a specific flow test
-pnpm test:e2e business-brief-flow
+pnpm test:e2e scrutiny-checkpoint-flow
 ```
 
-### Available Test Files
-
-| Test File | What It Tests |
-|-----------|---------------|
-| `plugin-loading.e2e.ts` | Plugin loads, commands and agents registered |
-| `business-brief-flow.e2e.ts` | Business brief orchestration: agent resolution with correct plugin prefix |
+See `tests/e2e/*.e2e.ts` for available test files.
 
 ### E2E Test Configuration
 
@@ -289,6 +272,7 @@ These fixtures allow tests to focus on orchestration (skill → agent handoff, a
 - **Agent identifier errors** — e.g., `business-writer` vs `lockstride-kickoff:business-writer`
 - **Missing or misconfigured plugin commands/agents** — registration failures
 - **Broken skill-to-agent handoff flows** — incorrect `Task` tool invocations
+- **Incorrect agent vs skill routing** — interactive flows routed through autonomous agents
 - **Workflow dead-ends** — flow stops instead of continuing to next step
 
 ### E2E Test Output
@@ -299,6 +283,12 @@ These fixtures allow tests to focus on orchestration (skill → agent handoff, a
   Agent events: lockstride-kickoff:business-writer
   Cost: $0.0123
   Turns: 3
+
+✓ scrutiny-checkpoint-flow should invoke challenging-assumptions skill without agent resolution errors
+  Agent events: (none)
+  Skill tool uses: challenging-assumptions
+  Cost: $0.0456
+  Turns: 8
 ```
 
 ---

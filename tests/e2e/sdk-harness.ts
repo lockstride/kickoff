@@ -315,3 +315,31 @@ export function assertFileWritten(toolUses: ToolEvent[], filePattern: string): T
   }
   return match;
 }
+
+export function assertNoAgentNotFoundErrors(errors: string[]): void {
+  const agentErrors = errors.filter((e) => e.includes('Agent type') && e.includes('not found'));
+  if (agentErrors.length > 0) {
+    throw new Error(`Agent resolution errors detected:\n${agentErrors.join('\n')}`);
+  }
+}
+
+export function assertSkillInvoked(toolUses: ToolEvent[], skillName: string): ToolEvent {
+  const match = toolUses.find((t) => {
+    const input = t.tool_input as Record<string, unknown>;
+    return typeof input.skill_name === 'string' && input.skill_name.includes(skillName);
+  });
+  if (!match) {
+    const invokedSkills =
+      toolUses
+        .filter((t) => {
+          const input = t.tool_input as Record<string, unknown>;
+          return typeof input.skill_name === 'string';
+        })
+        .map((t) => (t.tool_input as Record<string, unknown>).skill_name)
+        .join(', ') || '(none)';
+    throw new Error(
+      `Expected skill "${skillName}" to be invoked. Skills invoked: ${invokedSkills}`
+    );
+  }
+  return match;
+}

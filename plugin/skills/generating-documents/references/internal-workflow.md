@@ -366,15 +366,15 @@ After generating DRAFT-{document-type}.md for milestone documents (market-analys
 
 If yes: Engage SKEPTIC MODE.
 ### If yes:
-1. Spawn challenger agent with:
+1. Invoke the `challenging-assumptions` skill (via Skill tool) with context:
    - document_type: [type of document just generated]
    - document_path: [path to DRAFT document]
-2. Challenger agent conducts SKEPTIC MODE session
-3. After challenger exits with structured insights summary, follow Post-Scrutiny Amendment Flow
+2. The skill runs interactively — challenging assumptions one at a time, tracking scores
+3. After the skill exits with structured insights summary, follow Post-Scrutiny Amendment Flow
 
 ### If no:
 - Proceed directly to Document Review Loop
-- Note: Scrutiny can be revisited later via direct agent invocation
+- Note: Scrutiny can be revisited later
 
 ---
 
