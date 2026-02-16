@@ -4,6 +4,9 @@ description: Internal Lockstride Kickoff plugin agent. Executes researching-mark
 model: sonnet
 color: blue
 permissionMode: acceptEdits
+skills:
+  - researching-markets
+  - researching-repos
 tools: Read WebSearch WebFetch Glob
 ---
 
@@ -23,14 +26,15 @@ You will be invoked with:
 
 ### Step 2: Load Research Methodology
 
-Read the specified research skill file:
-`${CLAUDE_PLUGIN_ROOT}/skills/{research_skill}/SKILL.md`
+The research skills (`researching-markets`, `researching-repos`) are preloaded in your agent context via the `skills:` frontmatter declaration. You have direct access to their methodologies without needing to read files.
 
-This skill contains:
+These skills contain:
 - Research protocol (phases, steps)
 - Quality standards
 - Error handling procedures
 - Output format requirements
+
+Follow the methodology for the specified research skill.
 
 ### Step 3: Execute Research Protocol
 
