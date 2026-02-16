@@ -282,9 +282,45 @@ target_length: 3000-5000 words
 
 ---
 
-## 8. SWOT Analysis — {STARTUP_NAME}
+## 8. AI Impact Assessment
 
-<!-- Guidance: Be honest and specific. Avoid generic statements. Each item should be grounded in evidence from this analysis. Keep to 3-5 bullet points per quadrant. -->
+<!-- Guidance: Evaluate how current and foreseeable AI advancements affect this business — both positively and negatively. This is a critical lens for early-stage viability. Businesses that structurally benefit from AI improvements over time are strongly favored. Businesses whose core value proposition erodes as AI advances — especially "AI wrapper" businesses — face existential risk and must be scrutinized hard. Be direct and honest; this section should materially influence the SWOT and strategic recommendations that follow. -->
+
+### AI Tailwinds — How AI Advances Benefit This Business
+
+<!-- Guidance: Identify specific ways improving AI capabilities make this business stronger, cheaper to operate, or more valuable over time. Consider: Does AI reduce COGS? Expand addressable market? Create compounding data advantages? Enable capabilities that weren't previously possible? Favor businesses where AI is an accelerant to a durable value proposition, not the value proposition itself. -->
+
+{AI_TAILWINDS_ANALYSIS}
+
+### AI Headwinds — How AI Advances Threaten This Business
+
+<!-- Guidance: Identify specific ways improving AI capabilities could undermine this business. Consider: Could a foundation model provider offer this natively? Does the product's value shrink as AI gets cheaper/better? Is the core differentiation a thin integration layer over an LLM? Could customers replicate this with prompts or agents? Be especially harsh on businesses that are essentially packaging commodity AI capabilities with a UI — these face margin compression and disintermediation as AI platforms improve. -->
+
+{AI_HEADWINDS_ANALYSIS}
+
+### AI Resilience Verdict
+
+<!-- Guidance: Deliver a clear, honest verdict. Classify the business into one of these categories and justify:
+- **AI-Native Advantage**: AI improvements compound the business's value (e.g., proprietary data flywheels, domain-specific models, AI-enabled workflows that create lock-in).
+- **AI-Assisted**: AI is a useful tool but not the core value prop. Business is largely neutral to AI advances (e.g., AI speeds up internal operations but the product value is elsewhere).
+- **AI-Exposed**: Core value proposition is at moderate risk from AI advances. Differentiation depends on execution speed and feature depth vs. improving general-purpose AI.
+- **AI-Wrapper Risk**: Business is primarily packaging commodity AI with limited defensibility. As AI platforms improve, the value of the wrapper layer compresses. This is a serious red flag.
+
+Be direct. If this is a wrapper business, say so. If the moat is "we fine-tuned a model" or "we built a nice UI on top of GPT," that's not durable differentiation. -->
+
+**Classification:** {AI_RESILIENCE_CLASSIFICATION}
+
+**Rationale:**
+{AI_RESILIENCE_RATIONALE}
+
+**Key Question for the Founder:**
+{AI_RESILIENCE_KEY_QUESTION}
+
+---
+
+## 9. SWOT Analysis — {STARTUP_NAME}
+
+<!-- Guidance: Be honest and specific. Avoid generic statements. Each item should be grounded in evidence from this analysis — including the AI Impact Assessment. AI resilience classification should directly inform Strengths/Weaknesses (internal AI capabilities) and Opportunities/Threats (external AI dynamics). Keep to 3-5 bullet points per quadrant. -->
 
 ### Strengths (Internal, Positive)
 
@@ -312,7 +348,7 @@ target_length: 3000-5000 words
 
 ---
 
-## 9. Strategic Implications & Recommendations
+## 10. Strategic Implications & Recommendations
 
 <!-- Guidance: Keep to 2-3 concise paragraphs per subsection. Focus on actionable recommendations grounded in the analysis above. -->
 
@@ -348,6 +384,8 @@ target_length: 3000-5000 words
 
 ### Top 5 Risks to Success
 
+<!-- Guidance: If the AI Impact Assessment identified AI-Exposed or AI-Wrapper Risk classification, at least one risk here must address AI-driven disruption or margin compression. -->
+
 | Rank | Risk | Likelihood | Impact | Mitigation |
 |------|------|------------|--------|------------|
 | 1 | {RISK} | {L/M/H} | {L/M/H} | {MITIGATION} |
@@ -358,7 +396,7 @@ target_length: 3000-5000 words
 
 ---
 
-## 10. Research Methodology & Sources (Optional)
+## 11. Research Methodology & Sources (Optional)
 
 <!-- Guidance: Include this section if stakeholders require transparency into research methods and source quality. For most internal use cases, this level of detail is not necessary. When included, keep to 1-2 paragraphs per subsection. -->
 
@@ -372,6 +410,7 @@ target_length: 3000-5000 words
 | Customer Segments | {HIGH/MED/LOW} | {WHY_OR_GAPS} |
 | Competitive Analysis | {HIGH/MED/LOW} | {WHY_OR_GAPS} |
 | Market Trends | {HIGH/MED/LOW} | {WHY_OR_GAPS} |
+| AI Impact Assessment | {HIGH/MED/LOW} | {WHY_OR_GAPS} |
 | Strategic Recommendations | {HIGH/MED/LOW} | {WHY_OR_GAPS} |
 
 ### Research Methodology & Sources

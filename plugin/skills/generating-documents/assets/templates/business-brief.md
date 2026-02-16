@@ -17,7 +17,7 @@ target_length: 1500-2000 words
 
 ## Executive Summary
 
-<!-- Guidance: 2-3 sentences that capture the essence of the business. Should answer: What problem? For whom? How solved (high level)? What's the outcome? Write as if pitching to a busy investor in an elevator. Heavy emphasis on establishing the significance of the problem. The reader should feel the "pain", and be on the edge of their seat to hear about the solution, which we will only touch on briefly here.  -->
+<!-- Guidance: 1-3 paragraphs that capture the essence of the business. Should answer: What problem? For whom? How solved (high level)? What's the outcome? Write as if pitching to a busy investor in an elevator. Heavy emphasis on establishing the significance of the problem. The reader should feel the "pain", and be on the edge of their seat to hear more about the solution. This is the opening argument in the case we are making for our product and it must draw the reader in and have them nodding in agreement and support by the end. This is a sales pitch, and don't be afraid to be a bit hyperbolic in this section. -->
 
 {EXECUTIVE_SUMMARY}
 
@@ -175,7 +175,7 @@ target_length: 1500-2000 words
 
 ## Summary
 
-<!-- Guidance: A final synthesis paragraph that captures the essence of the opportunity and why it's worth pursuing. Should leave the reader with a clear understanding of the vision and next steps. -->
+<!-- Guidance: A final synthesis paragraph that captures the essence of the opportunity and why it's worth pursuing. It should leave the reader with a clear understanding of the vision and next steps. This section should align with the opening argument in the Executive Summary and serve as a compelling, persuasive closing argument. This section must be convincing because it is the last chance to make our case. -->
 
 {SUMMARY}
 

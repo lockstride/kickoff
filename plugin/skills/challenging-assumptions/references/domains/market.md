@@ -9,6 +9,7 @@ Challenge patterns for scrutinizing market analysis, competitive positioning, an
 - **Timing assumption** — "Now is the right time" without evidence
 - **Wedge confusion** — No clear entry point into the market
 - **Segment sprawl** — Targeting everyone means targeting no one
+- **AI wrapper fragility** — Core value is a thin layer over commodity AI that platforms will absorb
 
 ## Challenge Templates
 
@@ -60,6 +61,30 @@ Challenge patterns for scrutinizing market analysis, competitive positioning, an
 
 **Satisfactory response:** Points to a specific catalyst — technology cost curve, regulation, buyer behavior shift, or platform change.
 
+### Challenge: AI Wrapper Risk
+
+> Strip away the AI layer from your product. What's left? If the answer is "a UI and some prompts," you have a wrapper problem. What do you offer that a foundation model provider won't offer natively in 12-18 months?
+
+**Why it matters:** AI capabilities are commoditizing rapidly. Businesses built as thin layers over LLMs face margin compression and disintermediation as platforms improve. Investors and advisors increasingly treat "AI wrapper" as a red flag.
+
+**Satisfactory response:** Identifies durable value beyond the AI layer — proprietary data, domain-specific workflows, regulatory compliance, network effects, or deep integrations that create switching costs independent of the underlying model.
+
+### Challenge: AI Resilience Over Time
+
+> AI is getting cheaper, faster, and more capable every quarter. Does that make your business more valuable or less valuable over time? Specifically — if GPT-N can do what your product does out of the box, what's your plan?
+
+**Why it matters:** The best AI-era businesses get stronger as AI improves (AI reduces their costs, expands their market, or compounds their data advantage). The worst get weaker (AI erodes their differentiation or makes their product redundant).
+
+**Satisfactory response:** Articulates a clear mechanism by which AI improvements benefit the business — lower COGS, expanded addressable market, compounding data flywheel — rather than threatening it. Or honestly acknowledges the risk and describes a concrete defensibility strategy.
+
+### Challenge: AI Differentiation Durability
+
+> You say you've fine-tuned a model / built proprietary AI / have a unique dataset. How long does that advantage last? What happens when the next foundation model release closes the gap? What's your compounding advantage?
+
+**Why it matters:** Point-in-time AI advantages erode quickly. Fine-tuning advantages shrink with each model generation. Static datasets become stale. Durable AI differentiation requires compounding mechanisms.
+
+**Satisfactory response:** Describes a flywheel — more users generate more data, which improves the model, which attracts more users — or identifies structural advantages (regulatory data access, real-time proprietary data streams, domain-specific feedback loops) that compound over time.
+
 ## Failure Mode Patterns
 
 | Pattern | Red Flag | What Fails |
@@ -68,6 +93,9 @@ Challenge patterns for scrutinizing market analysis, competitive positioning, an
 | Competitor Dismissal | "They're not really competitors" | Blindsided when they respond |
 | Everyone Problem | "Our target is all businesses" | No positioning, no wedge |
 | Category Creation | "We're creating a new category" | Expensive education, incumbents copy |
+| AI Wrapper | "We built a better UI on top of GPT" | Platform absorbs the value layer |
+| Melting Moat | "We fine-tuned a model" | Next foundation model release closes the gap |
+| AI-as-the-Product | Core value is "we use AI" | Commoditized as AI becomes table stakes |
 
 ## Example Exchange
 
@@ -86,3 +114,21 @@ Challenge patterns for scrutinizing market analysis, competitive positioning, an
 > "Top-down, Gartner says the broader category is $15B, but that includes segments we don't address. Bottom-up: 200,000 target companies in the US (from LinkedIn data), 30% fit our ICP (60,000), average contract value of $24K based on 5 early customers. That's $1.4B SAM. We think we can capture 5% in 5 years for a $70M SOM. We're raising for the SOM, not the TAM."
 
 *Triangulated methodology, realistic segmentation, intellectually honest.*
+
+---
+
+**Weak Response:**
+
+> **Challenge:** What happens when AI gets good enough to do what your product does natively?
+>
+> "We have a head start and our UX is better."
+
+*Head starts erode. UX is a feature, not a moat. No structural defense against platform commoditization.*
+
+**Strong Response:**
+
+> **Challenge:** What happens when AI gets good enough to do what your product does natively?
+>
+> "AI getting better actually helps us. Our product isn't the AI — it's the compliance workflow around it. We encode 200+ jurisdiction-specific regulatory rules that change quarterly. Every customer interaction generates labeled training data for our domain models. As foundation models improve, our COGS drop but our regulatory knowledge graph and customer-specific configurations get stickier. OpenAI isn't going to maintain HIPAA compliance workflows for 50-bed hospitals."
+
+*Durable value beyond the AI layer. Compounding domain advantage. Clear reason why platforms won't replicate it.*
