@@ -29,8 +29,9 @@ Configuration must exist (see `${CLAUDE_PLUGIN_ROOT}/shared-references/config-re
 
 1. Read config file (see `${CLAUDE_PLUGIN_ROOT}/shared-references/config-resolution.md`) to get `documentsPath`
 2. Determine startup name (from args or prompt)
-3. Check if `{internalPath}/.naming-exercise.md` exists (hidden session file)
-4. Check if current name appears to be a code name (placeholder)
+3. Set `{internalPath}` = `{documentsPath}/generated-assets/internal`
+4. Check if `{internalPath}/.naming-exercise.md` exists (hidden session file)
+5. Check if current name appears to be a code name (placeholder)
 
 ### Step 2: Assess Intent
 
@@ -50,6 +51,7 @@ Configuration must exist (see `${CLAUDE_PLUGIN_ROOT}/shared-references/config-re
 **For full naming exercise or resume:**
 - Run the naming exercise directly in this context (no agent delegation)
 - Read `references/naming-phases.md` for detailed phase instructions
+- Read the business brief at `{internalPath}/business-brief.md` if it exists — use it to establish product context, positioning, and the current name as baseline. Do NOT ask the founder to re-explain what the product does.
 - Maintain session state in `{internalPath}/.naming-exercise.md`
 - Follow the interactive 5-phase process with user
 
@@ -69,12 +71,14 @@ Configuration must exist (see `${CLAUDE_PLUGIN_ROOT}/shared-references/config-re
 
 When conducting a full naming exercise, read `references/naming-phases.md` and follow the phases:
 
-1. **Phase 1: Preference Gathering** — Collect style, emotional, imagery, sonic, and constraint preferences
-2. **Phase 2: Candidate Generation** — Generate 8-12 candidates across naming strategies
+1. **Phase 1: Preference Gathering** — Load business brief for product context, then collect emotional themes, style, imagery, sonic, and constraint preferences
+2. **Phase 2: Candidate Generation (feedback-only)** — Generate up to 5 candidates per round. No domain checks. Explicitly frame as direction-finding, not final picks.
 3. **Phase 2.5: Tagline Pivot** (optional) — If stuck, work on taglines to unlock flow
-4. **Phase 3: Validation** — Check domains, trademarks, social handles for promising candidates
-5. **Phase 4: Refinement** — Stress test shortlisted names
-6. **Phase 5: Selection** — Present final comparison, execute migration if selected
+4. **Phase 3: Validation** — Run domain checks (multi-TLD) and web presence searches on names that got positive reactions. No name advances without verified availability and web landscape assessment.
+5. **Phase 4: Refinement** — Stress test shortlisted names. Every name presented MUST have a completed domain check. Check new candidates before showing them.
+6. **Phase 5: Selection** — Present final comparison with verified availability, execute migration if selected
+
+**Domain Check Policy**: Phase 2 is unconstrained creative exploration — availability doesn't matter yet. From Phase 3 onward, every name must have a completed domain check before being presented. The checker reports across multiple TLDs (.com, .net, .io, .ai, .co); use the full results to assess viability — broad availability is a strong positive, crowded landscapes indicate brand confusion risk. See `references/naming-phases.md` for interpretation guidance.
 
 **Session State**: After each significant exchange, update `{internalPath}/.naming-exercise.md` per the structure in `references/naming-phases.md`.
 
